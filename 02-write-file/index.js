@@ -8,7 +8,7 @@ const rl = readline.createInterface({
 
 let WriteStream = fs.createWriteStream("./02-write-file/writeText.txt", "utf8");
 
-rl.question("Hello" + '\n', () => {
+rl.question("Type something,please", () => {
   rl.on("line", (userInput = "\n") => {
     if (userInput == "exit") {
       rl.close();
