@@ -1,26 +1,31 @@
+let fs = require("fs");
 const path = require("path");
-const fs = require("fs/promises");
 
-const filePath = path.join(__dirname, "secret-folder");
+getAllFiles("03-files-in-folder/secret-folder");
 
-async function getFiles() {
-  const items = await fs.readdir(filePath, (err, items) => {
-    return items;
-  });
+function getAllFiles(folderDir) {
+  fs.readdir(folderDir, (err, files) => {
+    if (err) throw err;
 
-  for (const item of items) {
-    const itemFold = path.join(filePath, item);
-    const stat = await fs.stat(itemFold, (err, stat) => {
-      return stat;
-    });
+    // console.log(files);
 
-    if (!stat.isDirectory()) {
-      const nameFile = path.parse(itemFold).name;
-      const extenFile = path.parse(itemFold).ext.slice(1);
-      const weightFile = stat.size / 1024 + "kb";
-      console.log(`${nameFile} - ${extenFile} - ${weightFile}`);
+    for (let file of files) {
+      fs.stat(folderDir + "/" + file, (err, stats) => {
+        if (err) throw err;
+
+        if (!stats.isDirectory()) {
+          console.log(
+            path.basename(
+              folderDir + "/" + file,
+              path.extname(folderDir + "/" + file)
+            ) +
+              " - " +
+              path.extname(folderDir + "/" + file).substr(1) +
+              " - " +
+              `${stats.size / 1024}kb`
+          );
+        }
+      });
     }
-  }
+  });
 }
-console.log("Info about files from directory secret-folder:");
-getFiles();

@@ -1,41 +1,46 @@
+let fs = require("fs");
 const path = require("path");
-const fs = require("fs");
 
-const projectDist = path.join(__dirname, "/project-dist");
-const bundleCss = path.join(__dirname, "/project-dist/bundle.css");
-const Styles = path.join(__dirname, "/styles");
+deleteFile("05-merge-styles/project-dist");
+// let stream = fs.createReadStream(folderDir)
+getAllFiles("05-merge-styles/styles");
 
-fs.stat(projectDist, (err, stats) => {
-  if (!err) {
-    removeDist();
-  } else {
-    creatBundleCss();
-  }
-});
+function getAllFiles(folderDir) {
+  fs.readdir(folderDir, (err, files) => {
+    if (err) throw err;
 
-async function removeDist() {
-  await fs.rm(projectDist, { force: true, recursive: true }, (err) => {
-    if (err) {
-      console.log("The folder cant remove");
-    } else {
-      creatBundleCss();
+    // console.log(files);
+
+    for (let file of files) {
+      // fs.stat(folderDir + "/" + file, (err, stats) => {
+      //   if (err) throw err;
+      // });
+      console.log(file);
+      if (path.extname(folderDir + "/" + file).substr(1) === "css") {
+        let stream = fs.createReadStream(`${folderDir}/${file}`);
+        stream.on("data", (data) => {
+          fs.appendFile(
+            `./05-merge-styles/project-dist/bundle.css`,
+            data,
+            function (err) {
+              if (err) throw err;
+              console.log("Saved!");
+            }
+          );
+        });
+      }
     }
   });
 }
-async function creatBundleCss() {
-  await fs.mkdir(projectDist, { recursive: true }, (err) => {
+
+function deleteFile(folderDir) {
+  fs.readdir(folderDir, (err, files) => {
     if (err) throw err;
-  });
-  await fs.readdir(Styles, (err, files) => {
-    for (const file of files) {
-      if (path.extname(file) === ".css") {
-        fs.readFile(path.join(Styles, file), "utf-8", (err, data) => {
-          if (err) {
-            process.exit();
-          }
-          fs.appendFile(bundleCss, `${data}\n`, (err) => {
-            if (err) throw err;
-          });
+    for (let file of files) {
+      if (file === "bundle.css") {
+        fs.unlink(`${folderDir}/bundle.css`, (err) => {
+          if (err) throw err;
+          console.log("path/file.txt was deleted");
         });
       }
     }

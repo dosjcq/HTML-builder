@@ -1,24 +1,27 @@
 const readline = require("readline");
 const fs = require("fs");
-const path = require("path");
-const filePath = path.join(__dirname, "text.txt");
 
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
 });
 
-let writeableStream;
+let WriteStream = fs.createWriteStream("./02-write-file/writeText.txt", "utf8");
 
-console.log("What languages do you know? ");
-
-rl.on("line", (line) => {
-  if (line === "exit" || line === "EXIT") {
-    process.exit();
-  }
-  if (!writeableStream) writeableStream = fs.createWriteStream(filePath);
-  writeableStream.write(`${line} \n`);
+rl.question("Type something,please", () => {
+  rl.on("line", (userInput = "\n") => {
+    if (userInput == "exit") {
+      rl.close();
+    } else {
+      WriteStream.write(userInput + "\n");
+    }
+  });
 });
 
-process.on("exit", () => console.log("\bGood buy!"));
-process.on("SIGINT", () => exit());
+rl.on("SIGINT", () => {
+  rl.close();
+});
+
+rl.on("close", () => {
+  console.log("Bye");
+});
